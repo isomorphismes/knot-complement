@@ -150,6 +150,7 @@ open DiscGrp public
 record WEVertex : Set where
   constructor weVertex
   field
+    vertexAlive : Bool
     vertexCoordinates : Point4
     vertexDistance : Float
     vertexIdeal : Bool
@@ -158,6 +159,7 @@ open WEVertex public
 record WEEdge : Set where
   constructor weEdge
   field
+    edgeAlive : Bool
     edgeTail edgeTip : Nat
     edgeBackLeft edgeBackRight edgeFrontLeft edgeFrontRight : Maybe Nat
     edgeLeftFace edgeRightFace : Maybe Nat
@@ -166,6 +168,7 @@ open WEEdge public
 record WEFace : Set where
   constructor weFace
   field
+    faceAlive : Bool
     faceOrder : Nat
     faceFillTone : Int
     faceSomeEdge : Maybe Nat
@@ -188,13 +191,13 @@ record WEPolyhedron : Set where
 open WEPolyhedron public
 
 numberOfVertices : WEPolyhedron → Nat
-numberOfVertices poly = length (vertices poly)
+numberOfVertices poly = length (filter vertexAlive (vertices poly))
 
 numberOfEdges : WEPolyhedron → Nat
-numberOfEdges poly = length (edges poly)
+numberOfEdges poly = length (filter edgeAlive (edges poly))
 
 numberOfFaces : WEPolyhedron → Nat
-numberOfFaces poly = length (faces poly)
+numberOfFaces poly = length (filter faceAlive (faces poly))
 
 record KeyTokenPair : Set where
   constructor keyToken
