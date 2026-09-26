@@ -28,6 +28,7 @@ postulate
   geomBound : Geom → Transform → Maybe BBox
   bboxUnion : BBox → BBox → BBox
   geomPick : Geom → Pick → Appearance → Transform → Bool
+  sameGeom : Geom → Geom → Bool
   pickSetPathIndex : Pick → Nat → Nat → Pick
   scanHandle : Maybe Handle → Callback → Unit
   geomDelete : Geom → Unit
@@ -37,6 +38,7 @@ postulate
   geomFSave : Geom → FileHandle → String → Unit
   geomLoad : IOBFile → Maybe String → Maybe Geom
 
+  runPredraw : Callback → DiscGrp → DiscGrp
   cameraWorldToCamera : Transform
   cameraSetCameraToWorld : Transform → Unit
   currentModelToWorld : Transform
