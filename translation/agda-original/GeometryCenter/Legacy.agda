@@ -27,6 +27,8 @@ postulate
   geomBound : Geom → Transform → Maybe BBox
   bboxUnion : BBox → BBox → BBox
   geomPick : Geom → Pick → Appearance → Transform → Bool
+  pickSetPathIndex : Pick → Nat → Nat → Pick
+  scanHandle : Maybe Handle → Callback → Unit
   geomDelete : Geom → Unit
   geomHandleScan : Geom → Callback → Unit
 
