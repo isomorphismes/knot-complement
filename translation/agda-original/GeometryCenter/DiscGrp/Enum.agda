@@ -267,12 +267,11 @@ drainOldWords depth state =
 dumb-enumerate-depths : Nat → EnumState → EnumState
 dumb-enumerate-depths 0 state = state
 dumb-enumerate-depths (suc remaining) state =
-  let depth = MAXDEPTH - remaining
+  let depth = natSub MAXDEPTH remaining
       prepared = setWordState state (make-new-old (wordState state))
       drained = drainOldWords depth prepared
   in dumb-enumerate-depths remaining drained
 
-postulate _-_ : Nat → Nat → Nat
 
 dumb-enumerate : DiscGrpEl → EnumState → EnumState
 dumb-enumerate element state =
