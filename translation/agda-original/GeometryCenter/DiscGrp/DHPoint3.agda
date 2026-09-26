@@ -99,8 +99,7 @@ DHPt3Distance p0 p1 metric =
              then 0.0
              else
                acoshf
-                 (clampAtLeastOne
-                   (absf (dot31 p0 p1 /f sqrtf (d0 *f d1))))
+                 (absf (dot31 p0 p1 /f sqrtf (d0 *f d1)))
       else
         let d0 = dot31 p0 p0
             d1 = dot31 p1 p1
