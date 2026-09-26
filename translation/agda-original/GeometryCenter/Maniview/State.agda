@@ -42,6 +42,7 @@ record ManiviewState : Set where
     metricIndex : Nat
     softwareShade : Bool
     currentLoadType : Nat
+    loadTypeChanged : Bool
     currentTileMode : Nat
     currentScale : Float
     attenuation : List (List Float)
@@ -71,6 +72,7 @@ initialState =
     1
     true
     LOAD-GROUP
+    true
     DIRDOM-MODE
     0.2
     ((0.5 ∷ 1.0 ∷ 0.0 ∷ 1.0 ∷ 0.0 ∷ 6.0 ∷ 0.0 ∷ []) ∷
