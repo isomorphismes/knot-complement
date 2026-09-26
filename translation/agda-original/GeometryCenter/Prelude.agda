@@ -165,6 +165,9 @@ postulate
   stringAppend : String → String → String
   charToString : Char → String
   upperLowerMate : Char → Char
+  showNat : Nat → String
+  showFloat : Float → String
+  showTransform : List (List Float) → String
 
 infixl 6 _+f_ _-f_
 infixl 7 _*f_ _/f_
