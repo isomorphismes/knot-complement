@@ -155,7 +155,7 @@ replaceOrAppend (suc n) value (x ∷ xs) =
 
 postulate
   _+f_ _-f_ _*f_ _/f_ : Float → Float → Float
-  negf absf sqrtf acoshf acosf sinf cosf : Float → Float
+  negf absf sqrtf acoshf acosf sinf cosf coshf : Float → Float
   atan2f : Float → Float → Float
   floatEq floatLess floatLessOrEqual : Float → Float → Bool
   natToFloat : Nat → Float
@@ -170,9 +170,12 @@ postulate
   charAddNat : Char → Nat → Char
   upperLowerMate : Char → Char
   showNat : Nat → String
+  showInt : Int → String
   showFloat : Float → String
   showTransform : List (List Float) → String
   intEq intLess intLessOrEqual : Int → Int → Bool
+  intAdd intSub : Int → Int → Int
+  hardwarePrecision : Float
   natToInt : Nat → Int
   intToNat : Int → Maybe Nat
   natMod natSub : Nat → Nat → Nat
