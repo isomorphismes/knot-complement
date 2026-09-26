@@ -225,9 +225,10 @@ SaveCancelButtonProc state =
 LoadProc :
   ManiviewState → Nat → Bool → ManiviewState
 LoadProc state loadType selected =
-  if selected
-    then record state { currentLoadType = loadType }
-    else state
+  let marked = record state { loadTypeChanged = true }
+  in if selected
+       then record marked { currentLoadType = loadType }
+       else marked
 
 get-input-fp :
   String → Nat → Maybe IOBFile
@@ -348,9 +349,11 @@ LoadOKButtonProc state filename =
 LoadShowBrowserProc :
   ManiviewState → Maybe String → LoadResult
 LoadShowBrowserProc state nothing =
-  loadResult state false
+  loadResult (record state { loadTypeChanged = false }) false
 LoadShowBrowserProc state (just filename) =
-  LoadOKButtonProc state filename
+  LoadOKButtonProc
+    (record state { loadTypeChanged = false })
+    filename
 
 savegroup : ManiviewState → String → Bool
 savegroup state filename with currentGroup state
