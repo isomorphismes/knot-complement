@@ -185,6 +185,11 @@ record WEPolyhedron : Set where
     vertices : List WEVertex
     edges : List WEEdge
     faces : List WEFace
+    -- Stable storage above corresponds to allocated C objects.  These order
+    -- lists correspond to the C vertex_list/edge_list/face_list next chains.
+    vertexListOrder : List Nat
+    edgeListOrder : List Nat
+    faceListOrder : List Nat
     dirtyFaces : List Nat
     cleanFaces : List Nat
     pendingFaces : List Nat
