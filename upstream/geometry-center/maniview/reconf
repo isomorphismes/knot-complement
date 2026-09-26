@@ -1,0 +1,12 @@
+#! /bin/sh -x
+
+# This script is intended for use by developers only; it (re)generates
+# all the autoconf/automake derived files from scratch.  Use it to
+# bootstrap a manivew directory that has been checked out using CVS,
+# or to reconfigure a directory from scratch.
+
+autoreconf -i
+
+./configure --help
+echo
+echo "Run \`configure\' yourself, with the appropriate options"

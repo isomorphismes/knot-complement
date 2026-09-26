@@ -1,0 +1,8 @@
+*.la
+*.lo
+.geomview
+.geomview-flythrough
+.libs
+.libs
+Makefile Makefile.in .deps
+flythrough
