@@ -167,7 +167,7 @@ record WEFace : Set where
   constructor weFace
   field
     faceOrder : Nat
-    faceFillTone : Nat
+    faceFillTone : Int
     faceSomeEdge : Maybe Nat
     faceGroupElement : ProjMatrix
     faceInverse : Maybe Nat
