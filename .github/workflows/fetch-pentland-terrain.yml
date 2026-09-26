@@ -1,0 +1,36 @@
+name: Fetch Pentland Hills terrain
+
+on:
+  push:
+    branches:
+      - data/pentland-hills
+    paths:
+      - tools/fetch_pentland_terrain.py
+      - .github/workflows/fetch-pentland-terrain.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Fetch and verify the four Pentland tiles
+        run: python3 tools/fetch_pentland_terrain.py
+
+      - name: Commit the extracted terrain
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/pentland-hills/os-terrain-50
+          if git diff --cached --quiet; then
+            echo "Terrain data is already current."
+          else
+            git commit -m "Add Pentland Hills OS Terrain 50 data"
+            git push origin "HEAD:${{ github.ref_name }}"
+          fi
