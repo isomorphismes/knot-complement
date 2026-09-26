@@ -174,6 +174,7 @@ postulate
   intEq intLess intLessOrEqual : Int → Int → Bool
   natToInt : Nat → Int
   intToNat : Int → Maybe Nat
+  natMod : Nat → Nat → Nat
 
 infixl 6 _+f_ _-f_
 infixl 7 _*f_ _/f_
