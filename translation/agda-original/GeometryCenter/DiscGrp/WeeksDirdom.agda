@@ -322,8 +322,12 @@ roundoff-message : String → Unit
 roundoff-message epsilonName =
   standardError
     (stringAppend
-      "WARNING: roundoff error is getting perilously large: "
-      epsilonName)
+      "WARNING: roundoff error is getting perilously large.\n"
+      (stringAppend
+        "You may want to make "
+        (stringAppend
+          epsilonName
+          " a little larger.\nIf you change it, be sure to recompile.\n")))
 
 proj-same-matrix : WeeksState → ProjMatrix → ProjMatrix → Pair WeeksState Bool
 proj-same-matrix state m0 m1 =
@@ -1305,20 +1309,60 @@ print-vef state =
       v = numberOfVertices poly
       e = numberOfEdges poly
       f = numberOfFaces poly
-  in if natEq (weeksDebug state) 0
-       then tt
-       else standardError
-              (stringAppend
-                (showNat v)
-                (stringAppend " vertices, "
-                  (stringAppend (showNat e)
-                    (stringAppend " edges, " (showNat f)))))
+      euler =
+        intAdd
+          (intSub (natToInt v) (natToInt e))
+          (natToInt f)
+      line =
+        stringAppend (showNat v)
+          (stringAppend " vertices, "
+            (stringAppend (showNat e)
+              (stringAppend " edges, "
+                (stringAppend (showNat f)
+                  (stringAppend
+                    " faces, Euler characteristic = "
+                    (stringAppend (showInt euler) "\n"))))))
+      firstPrint =
+        if natEq (weeksDebug state) 0 then tt else standardError line
+      warning =
+        if intEq euler (pos 2)
+          then tt
+          else standardError
+                 "ERROR: Euler characteristic of polyhedron is not 2.\n"
+  in tt
+
+vertex-line : WEVertex → String
+vertex-line vertex =
+  let point = vertexCoordinates vertex
+  in stringAppend (showFloat (pointEntry point 0))
+       (stringAppend " "
+         (stringAppend (showFloat (pointEntry point 1))
+           (stringAppend " "
+             (stringAppend (showFloat (pointEntry point 2))
+               (stringAppend " "
+                 (stringAppend (showFloat (pointEntry point 3)) "\n"))))))
+
+print-vertices-list : WEPolyhedron → List Nat → Unit
+print-vertices-list poly [] = tt
+print-vertices-list poly (vertexIndex ∷ rest) =
+  let printed =
+        case vertexAt poly vertexIndex of λ where
+          nothing → tt
+          (just vertex) → standardError (vertex-line vertex)
+      later = print-vertices-list poly rest
+  in tt
 
 print-vertices : WeeksState → Unit
 print-vertices state =
   if natEq (weeksDebug state) 0
     then tt
-    else standardError "Vertices"
+    else
+      let heading = standardError "Vertices:\n"
+          body =
+            print-vertices-list
+              (weeksPolyhedron state)
+              (vertexListOrder (weeksPolyhedron state))
+      in tt
 
 print-poly : WeeksState → Unit
 print-poly state =
