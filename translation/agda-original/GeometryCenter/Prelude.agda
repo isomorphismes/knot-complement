@@ -137,6 +137,23 @@ natLess (suc n) (suc m) = natLess n m
 natLessOrEqual : Nat → Nat → Bool
 natLessOrEqual n m = natLess n m || natEq n m
 
+natGreater : Nat → Nat → Bool
+natGreater n m = natLess m n
+
+natGreaterOrEqual : Nat → Nat → Bool
+natGreaterOrEqual n m = natLessOrEqual m n
+
+natPred : Nat → Nat
+natPred 0 = 0
+natPred (suc n) = n
+
+replaceOrAppend : {A : Set} → Nat → A → List A → List A
+replaceOrAppend 0 value [] = value ∷ []
+replaceOrAppend (suc n) value [] = []
+replaceOrAppend 0 value (x ∷ xs) = value ∷ xs
+replaceOrAppend (suc n) value (x ∷ xs) =
+  x ∷ replaceOrAppend n value xs
+
 postulate
   _+f_ _-f_ _*f_ _/f_ : Float → Float → Float
   negf absf sqrtf acoshf acosf sinf cosf : Float → Float
