@@ -153,7 +153,7 @@ normalizeDiagnosticVertex metric state vertex =
                      (vertexCoordinates vertex)
                      (vertexCoordinates vertex)
                      metric))
-             ideal = floatLess norm (sqrtf 0.00000000000000022204)
+             ideal = floatLess norm (sqrtf (100000.0 *f hardwarePrecision))
          in if ideal
               then
                 accumulated ++
@@ -265,7 +265,7 @@ print-statistics metric poly =
       normalized = normalizedPolyhedron vertexStats
       edgeStats = print-edge-lengths metric normalized
       faceStats = print-face-distances normalized
-  in vertexStats , edgeStats , faceStats
+  in vertexStats , (edgeStats , faceStats)
 
 saveOOGL : ColorMapState → WEPolyhedron → String → Bool
 saveOOGL colors poly filename =
