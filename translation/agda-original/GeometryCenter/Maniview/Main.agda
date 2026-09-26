@@ -177,9 +177,38 @@ update-gv state with currentGroup state
 "
   in stateWithSpaceChange
 
+
+readAllLines : FileHandle → String
+{-# TERMINATING #-}
+readAllLines file with readLine file
+... | nothing = ""
+... | just line = stringAppend line (readAllLines file)
+
+splitAfterNewline :
+  List Char → List Char → Maybe (Pair String String)
+splitAfterNewline accumulated [] = nothing
+splitAfterNewline accumulated ('\n' ∷ rest) =
+  just (charsToString (reverse accumulated) , charsToString rest)
+splitAfterNewline accumulated (c ∷ rest) =
+  splitAfterNewline (c ∷ accumulated) rest
+
+-- maniview.c assigns first=p before advancing p, unlike flythrough's helper.
+mygetline : String → Maybe (Pair String String)
+mygetline text = splitAfterNewline [] (stringToChars text)
+
+loadManiviewHelp : Unit
+loadManiviewHelp with openTextFile "maniviewhelp"
+... | nothing = installHelpText embeddedManiviewHelp
+... | just file =
+  let text = readAllLines file
+      installed = installHelpText text
+      closed = closeTextFile file
+  in tt
+
 ui-init : ManiviewState → ManiviewState
 ui-init state =
-  let checkedBounds = fl-set-bounds state
+  let helpLoaded = loadManiviewHelp
+      checkedBounds = fl-set-bounds state
   in state
 
 ui-main-loop-step : ManiviewState → ManiviewState
