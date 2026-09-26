@@ -164,6 +164,9 @@ postulate
   stringLength : String → Nat
   stringAppend : String → String → String
   charToString : Char → String
+  stringToChars : String → List Char
+  charsToString : List Char → String
+  charEq : Char → Char → Bool
   upperLowerMate : Char → Char
   showNat : Nat → String
   showFloat : Float → String
