@@ -121,10 +121,6 @@ any : {A : Set} → (A → Bool) → List A → Bool
 any test [] = false
 any test (x ∷ xs) = test x || any test xs
 
-sumFloats : List Float → Float
-sumFloats [] = 0.0
-sumFloats (x ∷ xs) = x +f sumFloats xs
-
 natEq : Nat → Nat → Bool
 natEq 0 0 = true
 natEq 0 (suc n) = false
@@ -183,6 +179,10 @@ postulate
 
 infixl 6 _+f_ _-f_
 infixl 7 _*f_ _/f_
+
+sumFloats : List Float → Float
+sumFloats [] = 0.0
+sumFloats (x ∷ xs) = x +f sumFloats xs
 
 maxf : Float → Float → Float
 maxf a b = if floatLess a b then b else a
