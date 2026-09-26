@@ -88,5 +88,9 @@ postulate
   rewindFile : FileHandle → Unit
   openTextFile : String → Maybe FileHandle
   closeTextFile : FileHandle → Unit
+  runSystem : String → Unit
+  checkForms : Unit → Unit
+  stdinCaughtUp : Bool
+  exitProcess : Nat → Unit
 
   FormObject : Set
