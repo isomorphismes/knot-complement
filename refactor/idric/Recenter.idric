@@ -1,0 +1,180 @@
+module Recenter
+
+-- Idriç-facing translation of the quotient-space recentering slice.
+-- Linear algebra is a named boundary: this file is about the topology /
+-- navigation operation, not about spelling Gaussian elimination six times.
+
+public export
+Scalar : Type
+Scalar = Float32
+
+public export
+record Point4 where
+  constructor Point
+  x : Scalar
+  y : Scalar
+  z : Scalar
+  w : Scalar
+
+public export
+data Transform = Matrix4
+  Scalar Scalar Scalar Scalar
+  Scalar Scalar Scalar Scalar
+  Scalar Scalar Scalar Scalar
+  Scalar Scalar Scalar Scalar
+
+public export
+record GeometryOperations where
+  constructor Geometry
+  identity_transform : Transform
+  apply_transform : Point4 → Transform → Point4
+  compose_transform : Transform → Transform → Transform
+  inverse_transform : Transform → Maybe Transform
+  distance_between : Point4 → Point4 → Scalar
+  tune_transform : Transform → Transform
+
+public export
+record Space where
+  constructor QuotientSpace
+  center : Point4
+  -- The identity copy must be first, matching DiscGrpExtractNhbrs.
+  neighbors : List Transform
+
+public export
+record NearestCopy where
+  constructor FoundCopy
+  group_transform : Transform
+  crossing_count : Number
+
+public export
+data RecenterError
+  = SpaceHasNoNeighbors
+  | SingularTransform
+  | SearchDidNotConverge
+
+public export
+recenter_search_limit : Number
+recenter_search_limit = 1000
+
+record NearestNeighbor where
+  constructor Neighbor
+  transform : Transform
+  is_identity : Bool
+  distance : Scalar
+
+nearest_neighbor :
+  GeometryOperations → Space → Point4 → Maybe NearestNeighbor
+nearest_neighbor geometry space point =
+  case space.neighbors of
+    [] ⇒ Nothing
+    identity :: rest ⇒
+      let identity_distance =
+            geometry.distance_between
+              point
+              (geometry.apply_transform space.center identity)
+      in Just (choose_rest identity True identity_distance rest)
+  where
+    choose_rest :
+      Transform → Bool → Scalar → List Transform → NearestNeighbor
+    choose_rest best best_is_identity best_distance [] =
+      Neighbor best best_is_identity best_distance
+    choose_rest best best_is_identity best_distance (candidate :: rest) =
+      let candidate_distance =
+            geometry.distance_between
+              point
+              (geometry.apply_transform space.center candidate)
+      in if candidate_distance < best_distance
+           then choose_rest candidate False candidate_distance rest
+           else choose_rest best best_is_identity best_distance rest
+
+public export
+find_nearest_copy :
+  GeometryOperations →
+  Space →
+  Point4 →
+  Either RecenterError NearestCopy
+find_nearest_copy geometry space original_point =
+  search
+    recenter_search_limit
+    original_point
+    geometry.identity_transform
+    0
+  where
+    search :
+      Number →
+      Point4 →
+      Transform →
+      Number →
+      Either RecenterError NearestCopy
+    search Z current accumulated crossings =
+      Left SearchDidNotConverge
+    search (S fuel) current accumulated crossings =
+      case nearest_neighbor geometry space current of
+        Nothing ⇒ Left SpaceHasNoNeighbors
+        Just nearest ⇒
+          if nearest.is_identity
+            then Right (FoundCopy accumulated crossings)
+            else
+              let next =
+                    geometry.compose_transform
+                      nearest.transform
+                      accumulated
+              in case geometry.inverse_transform next of
+                   Nothing ⇒ Left SingularTransform
+                   Just next_inverse ⇒
+                     search
+                       fuel
+                       (geometry.apply_transform original_point next_inverse)
+                       next
+                       (S crossings)
+
+public export
+record RecenteredCamera where
+  constructor CameraInBaseCopy
+  camera_to_world : Transform
+  crossed_group_transform : Transform
+  crossing_count : Number
+
+public export
+recenter_camera :
+  GeometryOperations →
+  Space →
+  Transform →
+  Transform →
+  Either RecenterError RecenteredCamera
+recenter_camera geometry space camera_to_world model_to_world =
+  case geometry.inverse_transform camera_to_world of
+    Nothing ⇒ Left SingularTransform
+    Just world_to_camera ⇒
+      case geometry.inverse_transform model_to_world of
+        Nothing ⇒ Left SingularTransform
+        Just world_to_model ⇒
+          let model_to_camera =
+                geometry.compose_transform model_to_world world_to_camera
+          in case geometry.inverse_transform model_to_camera of
+               Nothing ⇒ Left SingularTransform
+               Just camera_to_model ⇒
+                 let origin = Point 0 0 0 1
+                     camera_position =
+                       geometry.apply_transform origin camera_to_model
+                 in case find_nearest_copy geometry space camera_position of
+                      Left problem ⇒ Left problem
+                      Right nearest ⇒
+                        case geometry.inverse_transform nearest.group_transform of
+                          Nothing ⇒ Left SingularTransform
+                          Just inverse_group ⇒
+                            let group_in_world =
+                                  geometry.compose_transform
+                                    world_to_model
+                                    (geometry.compose_transform
+                                      inverse_group
+                                      model_to_world)
+                                moved_camera =
+                                  geometry.compose_transform
+                                    camera_to_world
+                                    group_in_world
+                            in Right
+                                 (CameraInBaseCopy
+                                   (geometry.tune_transform moved_camera)
+                                   nearest.group_transform
+                                   nearest.crossing_count)
