@@ -674,7 +674,6 @@ connectCutEdge state faceIndex newFaceIndex analysis =
                                 }
                           in setPoly state poly5
 
-postulate _-_ : Nat → Nat → Nat
 
 faceEntirelyNonnegative : WEPolyhedron → Nat → Bool
 faceEntirelyNonnegative poly faceIndex with faceAt poly faceIndex
