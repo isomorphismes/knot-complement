@@ -89,6 +89,39 @@ enumerateFrom n (x ∷ xs) = (n , x) ∷ enumerateFrom (suc n) xs
 enumerate : {A : Set} → List A → List (Pair Nat A)
 enumerate = enumerateFrom 0
 
+rangeFrom : Nat → Nat → List Nat
+rangeFrom start 0 = []
+rangeFrom start (suc count) = start ∷ rangeFrom (suc start) count
+
+range : Nat → List Nat
+range count = rangeFrom 0 count
+
+headMaybe : {A : Set} → List A → Maybe A
+headMaybe [] = nothing
+headMaybe (x ∷ xs) = just x
+
+lastMaybe : {A : Set} → List A → Maybe A
+lastMaybe [] = nothing
+lastMaybe (x ∷ []) = just x
+lastMaybe (x ∷ y ∷ ys) = lastMaybe (y ∷ ys)
+
+filter : {A : Set} → (A → Bool) → List A → List A
+filter keep [] = []
+filter keep (x ∷ xs) =
+  if keep x then x ∷ filter keep xs else filter keep xs
+
+all : {A : Set} → (A → Bool) → List A → Bool
+all test [] = true
+all test (x ∷ xs) = test x && all test xs
+
+any : {A : Set} → (A → Bool) → List A → Bool
+any test [] = false
+any test (x ∷ xs) = test x || any test xs
+
+sumFloats : List Float → Float
+sumFloats [] = 0.0
+sumFloats (x ∷ xs) = x +f sumFloats xs
+
 natEq : Nat → Nat → Bool
 natEq 0 0 = true
 natEq 0 (suc n) = false
