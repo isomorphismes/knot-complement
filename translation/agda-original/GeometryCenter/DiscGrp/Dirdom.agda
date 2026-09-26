@@ -8,6 +8,7 @@ open import GeometryCenter.DiscGrp.Colormap
 open import GeometryCenter.DiscGrp.DHPoint3
 open import GeometryCenter.DiscGrp.Projective
 open import GeometryCenter.DiscGrp.WeeksDirdom
+open import GeometryCenter.DiscGrp.Polyhedron
 
 DGorigin : Point4
 DGorigin = origin4
@@ -547,31 +548,46 @@ DiscGrpDirDom state dg =
       case DiscGrpMakeDirdom dg false of λ where
         nothing → dirDomResult state dg nothing
         (just poly) →
-          dirDomResult
-            state
-            dg
-            (just (polyhedronToBeamsGeom poly (dirichletScale dg)))
+          let beams =
+                WEPolyhedronToBeams poly (dirichletScale dg)
+          in dirDomResult state dg (just (second beams))
     else
       case DiscGrpMakeDirdom dg false of λ where
         nothing → dirDomResult state dg nothing
         (just largePoly) →
           let largeScaled =
                 DiscGrpScalePolyhedron state dg largePoly (groupCenter dg) 1.0
-              largeGeom = polyhedronToGeom (second largeScaled)
+              largeBuilt =
+                WEPolyhedronToPolyList
+                  (colorState (first largeScaled))
+                  (second largeScaled)
+              afterLarge =
+                record (first largeScaled) {
+                  colorState = first largeBuilt
+                }
+              largeGeom = second largeBuilt
           in case DiscGrpMakeDirdom dg true of λ where
-               nothing → dirDomResult (first largeScaled) dg nothing
+               nothing → dirDomResult afterLarge dg nothing
                (just smallPoly) →
                  let smallScaled =
                        DiscGrpScalePolyhedron
-                         (first largeScaled)
+                         afterLarge
                          dg
                          smallPoly
                          (groupCenter dg)
                          (dirichletScale dg)
-                     smallGeom = polyhedronToGeom (second smallScaled)
+                     smallBuilt =
+                       WEPolyhedronToPolyList
+                         (colorState (first smallScaled))
+                         (second smallScaled)
+                     finalState =
+                       record (first smallScaled) {
+                         colorState = first smallBuilt
+                       }
+                     smallGeom = second smallBuilt
                      combined = combineGeomList largeGeom smallGeom
                  in dirDomResult
-                      (first smallScaled)
+                      finalState
                       (record dg {
                         dirichletGeometry = just combined
                       })
