@@ -11,6 +11,9 @@ open import Agda.Builtin.Sigma public
 open import Agda.Builtin.String public
 open import Agda.Builtin.Unit public
 
+Unit : Set
+Unit = ⊤
+
 data Either (A B : Set) : Set where
   left  : A → Either A B
   right : B → Either A B
