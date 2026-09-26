@@ -156,9 +156,42 @@ todemogv : String
 todemogv =
   "togeomview -c flythrough  geomview -nopanels -wpos 200x200@559,535 flythrough_diagram.gv"
 
+
+readAllLines : FileHandle → String
+{-# TERMINATING #-}
+readAllLines file with readLine file
+... | nothing = ""
+... | just line = stringAppend line (readAllLines file)
+
+splitAfterNewline :
+  List Char → List Char → Maybe (Pair String String)
+splitAfterNewline accumulated [] = nothing
+splitAfterNewline accumulated ('\n' ∷ rest) =
+  just (charsToString (reverse accumulated) , charsToString rest)
+splitAfterNewline accumulated (c ∷ rest) =
+  splitAfterNewline (c ∷ accumulated) rest
+
+-- main.c increments the saved pointer before assigning 'first', so the first
+-- call skips the first byte of the embedded string.  The generated flyhelp
+-- string begins with the delimiter byte expected by that routine.
+gv-getline : String → Maybe (Pair String String)
+gv-getline text with stringToChars text
+... | [] = nothing
+... | firstByte ∷ rest = splitAfterNewline [] rest
+
+loadFlyHelp : Unit
+loadFlyHelp with openTextFile "flyhelp"
+... | nothing = installHelpText embeddedFlyHelp
+... | just file =
+  let text = readAllLines file
+      installed = installHelpText text
+      closed = closeTextFile file
+  in tt
+
 InfoProc : FlythroughState → FlythroughState
 InfoProc state =
-  let command = stringAppend todemogv " < /dev/null&"
+  let helpLoaded = loadFlyHelp
+      command = stringAppend todemogv " < /dev/null&"
       launched = runSystem command
   in record state { helpWindowId = 1 }
 
