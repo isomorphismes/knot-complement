@@ -52,6 +52,7 @@ postulate
 
   fileOpen : String → String → Maybe FileHandle
   fileReadColor : FileHandle → Maybe ColorA
+  loadColorMap : String → Maybe (List ColorA)
   environment : String → Maybe String
 
   errorMessage : String → Unit
