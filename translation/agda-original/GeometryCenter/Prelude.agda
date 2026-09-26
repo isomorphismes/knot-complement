@@ -15,6 +15,9 @@ data Either (A B : Set) : Set where
   left  : A → Either A B
   right : B → Either A B
 
+case_of_ : {A B : Set} → A → (A → B) → B
+case value of function = function value
+
 record Pair (A B : Set) : Set where
   constructor _,_
   field
