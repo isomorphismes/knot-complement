@@ -68,6 +68,7 @@ postulate
   -- outside the selected source after it has built the winged-edge polyhedron.
   polyhedronToGeom : WEPolyhedron → Geom
   polyhedronToBeamsGeom : WEPolyhedron → Float → Geom
+  combineGeomList : Geom → Geom → Geom
 
   -- Stream/parser primitives used by dgstream.c and Maniview.
   nextToken : IOBFile → Maybe String
