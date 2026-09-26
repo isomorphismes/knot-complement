@@ -16,6 +16,7 @@ postulate
   transformScale : Float → Float → Float → Transform
   transformTranslate : Float → Float → Float → Transform
   transformPoint : Transform → Point4 → Point4
+  hyperbolicTranslateOrigin : Point4 → Transform
 
   spaceDistance : Point4 → Point4 → Nat → Float
   spaceNormalize : Point4 → Nat → Point4
