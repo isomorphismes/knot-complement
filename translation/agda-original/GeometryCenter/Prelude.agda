@@ -170,6 +170,8 @@ postulate
   stringToChars : String → List Char
   charsToString : List Char → String
   charEq : Char → Char → Bool
+  charBetween : Char → Char → Char → Bool
+  charAddNat : Char → Nat → Char
   upperLowerMate : Char → Char
   showNat : Nat → String
   showFloat : Float → String
