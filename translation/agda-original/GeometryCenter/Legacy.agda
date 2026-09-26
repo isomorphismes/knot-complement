@@ -88,6 +88,9 @@ postulate
   rewindFile : FileHandle → Unit
   openTextFile : String → Maybe FileHandle
   closeTextFile : FileHandle → Unit
+  embeddedFlyHelp : String
+  embeddedManiviewHelp : String
+  installHelpText : String → Unit
   runSystem : String → Unit
   checkForms : Unit → Unit
   stdinCaughtUp : Bool
