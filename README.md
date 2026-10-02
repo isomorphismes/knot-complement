@@ -48,13 +48,24 @@ An auto-walk/ride mode matters here: the user should be able to watch the geomet
 
 Possible later experiments include worlds organized around crossings, cancellations, transformations, operator-algebra-like composition, and knot-theoretic moves. These are intentionally less specified than the geometric fly-through work.
 
-## First experiment
+## First playable experiment
 
-Start with one small, inspectable target:
+Before the quotient-space walker, make the ordinary geometry loop work on the
+smallest visually interesting world:
+
+> **Walk around a tiny lunar planet.**
+
+The `little-prince/` prototype is an ordinary 2-sphere embedded in Euclidean
+3-space, using real lunar relief rescaled onto a toy-sized planet. It provides a
+baseline for walking, local up/down, camera behavior, horizon, touch controls,
+terrain, Android rendering, and auto-walk without any quotient geometry.
+
+After that baseline works on the phone, return to:
 
 > **Walk inside the figure-eight knot complement (`m004`).**
 
-See [FIRST_BUILD.md](FIRST_BUILD.md) on the working branch for the concrete scope.
+See [little-prince/README.md](little-prince/README.md) for the tiny-planet scope
+and [FIRST_BUILD.md](FIRST_BUILD.md) for the `m004` scope.
 
 ## Notes
 
