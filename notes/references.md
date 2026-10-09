@@ -21,6 +21,8 @@ The central source for the geometric viewpoint on 3-manifolds.
 
 Especially useful as a systematic account of the eight 3-dimensional geometries.
 
+**Unbuilt features tracked:** [all eight geometries #13](https://github.com/isomorphismes/knot-complement/issues/13) and [navigable hyperbolic honeycombs #14](https://github.com/isomorphismes/knot-complement/issues/14). These issues link the companion projects.
+
 #### Reading Scott by project question
 
 - **§§1–2:** surface geometries and orbifolds, for the 2-dimensional intuition behind geometric pieces.
