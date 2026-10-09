@@ -83,7 +83,7 @@ The C reference clamps the argument to at least one. The two-crossing test expos
 
 It also performs syntax/type checks for translated versions when the corresponding compiler is installed. Missing compilers are reported as `SKIP`, not `PASS`.
 
-The Functorial ICKY C source intentionally uses ICKY operators such as `×`, `−`, `√`, and `≟`; ordinary GCC is therefore not its acceptance compiler.
+The Functorial ICKY C source intentionally uses ICKY operators such as `×`, `÷`, `−`, `√`, and `≟`; ordinary GCC is therefore not its acceptance compiler. Its quotient uses the account's division glyph. The qualified ICK revision `c61e448251744a2f40ad743ebef1a027bdcd2f9d` accepts `÷`, but does not yet accept this comparison's existing `−`, `√`, and `≟` surface. This remains a language-design comparison with the existing explicit `SKIP` in `run-tests.sh`; the executable close C reference and its tests remain the behavioral oracle.
 
 The current tests/fixtures cover:
 
