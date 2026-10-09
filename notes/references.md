@@ -21,6 +21,16 @@ The central source for the geometric viewpoint on 3-manifolds.
 
 Especially useful as a systematic account of the eight 3-dimensional geometries.
 
+#### Reading Scott by project question
+
+- **§§1–2:** surface geometries and orbifolds, for the 2-dimensional intuition behind geometric pieces.
+- **§3:** Seifert fiber spaces, for examples that are not generic hyperbolic quotients.
+- **§4 (pp. 441–473):** the eight model geometries: `S^3`, `E^3`, `H^3`, `S^2 × R`, `H^2 × R`, `~SL_2(R)`, Nil and Sol.
+- **§5:** what is meant by classifying 3-dimensional geometries.
+- **§6:** geometrization, distinguishing a geometric piece from a general 3-manifold.
+
+**Rendering distinction:** a model geometry `X` is not automatically a particular quotient `X/Γ`. Model-space geodesics, quotient identifications, and the observer's frame are separate parts of a correct fly-through. Do not use Euclidean straight-line camera motion as a substitute for geodesics in Nil or Sol merely because a shader looks non-Euclidean. Scott is the mathematical classification reference; [Coulon–Matsumoto–Segerman–Trettel](https://arxiv.org/abs/2010.15801) is the computational rendering reference.
+
 ### Benson Farb — "On being Thurstonized"
 
 - https://math.uchicago.edu/~farb/papers/thurston.pdf
