@@ -66,7 +66,7 @@ hyperbolic_distance(point_4 left, point_4 right)
     scalar pairing = minkowski_pairing(left, right);
 
     scalar cosh_distance =
-        fabsf(pairing) /
+        fabsf(pairing) ÷
         √(left_size_squared × right_size_squared);
 
     /* Roundoff can put the mathematically exact lower bound below one. */
