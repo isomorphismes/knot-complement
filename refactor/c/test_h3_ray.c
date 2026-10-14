@@ -97,6 +97,21 @@ int main(int argc, char **argv)
     require_close(mapped.travelled,initial.travelled,"representative change preserves travel");
     require_status(kc_h3_map_frame(&boost,&initial,&frame,&transported),KC_H3_OK,"map whole frame");
     require_vector(transported.forward,exact_direction,"mapped forward");
+    /* The boost is symmetric as a stored matrix. A nonsymmetric rotation
+       catches accidental column-vector application that it cannot expose. */
+    const kc_h3_direct_isometry quarter_turn={{{0,1,0,0},{-1,0,0,0},{0,0,1,0},{0,0,0,1}}};
+    kc_h3_ray rotated;
+    require_status(kc_h3_apply_isometry(&quarter_turn,&initial,&rotated),KC_H3_OK,"quarter turn");
+    require_vector(rotated.direction,(kc_h3_vector){0,1,0,0},"row-vector rotation direction");
+    require_status(kc_h3_map_frame(&quarter_turn,&initial,&frame,&transported),KC_H3_OK,"rotated frame");
+    require_vector(transported.right,(kc_h3_vector){-1,0,0,0},"rotated right");
+    require_vector(transported.up,frame.up,"rotated up");
+    require_vector(transported.forward,(kc_h3_vector){0,1,0,0},"rotated forward");
+    kc_h3_ray rotated_advance, advanced_rotation;
+    require_status(kc_h3_advance(&rotated,step,&rotated_advance),KC_H3_OK,"advance rotated ray");
+    require_status(kc_h3_apply_isometry(&quarter_turn,&advanced,&advanced_rotation),KC_H3_OK,"rotate advanced ray");
+    require_vector(rotated_advance.position,(kc_h3_vector){0,0.75,0,1.25},"rotated exact point");
+    require_vector(rotated_advance.position,advanced_rotation.position,"isometry and advance commute");
     kc_h3_direct_isometry bad_isometry=boost;
     bad_isometry.rows[0][0]=NAN;
     require_status(kc_h3_validate_isometry(&bad_isometry),KC_H3_INVALID,"nonfinite isometry");
