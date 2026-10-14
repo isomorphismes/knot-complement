@@ -13,6 +13,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
+      - name: Check out the source-bound FP envelope
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/flexible-pipes
+          ref: 36485ea6a5dd7d8c23d02a9b86f4c1bd957268fb
+          path: fp
+          clean: false
+          persist-credentials: false
       - name: Check out exact pull-request head
         if: github.event_name == 'pull_request'
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -26,14 +34,6 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: fp/source
-          persist-credentials: false
-      - name: Check out the source-bound FP envelope
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          repository: isomorphisms/flexible-pipes
-          ref: 36485ea6a5dd7d8c23d02a9b86f4c1bd957268fb
-          path: fp
-          clean: false
           persist-credentials: false
       - name: Check out the independent oracle
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
