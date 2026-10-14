@@ -265,8 +265,8 @@ kc_status kc_find_nearest_copy(
     }
     for (size_t row_index = 0; row_index < 4; ++row_index)
         for (size_t column_index = 0; column_index < 4; ++column_index)
-            if (fabsf(space->neighbors[0].m[row_index][column_index] -
-                      (float)(row_index == column_index)) > 1e-6f)
+            if (space->neighbors[0].m[row_index][column_index] !=
+                (float)(row_index == column_index))
                 return KC_BAD_INPUT;
 
     kc_transform closest = kc_identity();

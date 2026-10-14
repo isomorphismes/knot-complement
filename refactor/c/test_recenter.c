@@ -128,6 +128,10 @@ int main(int argc, char **argv)
     kc_space missing_first_identity = {origin,wrong_order,2};
     if (kc_find_nearest_copy(&missing_first_identity,origin,&closest,&steps) != KC_BAD_INPUT)
         return 1;
+    kc_transform almost_identity = boost_x(1e-7f);
+    kc_space small_nonidentity = {origin,&almost_identity,1};
+    if (kc_find_nearest_copy(&small_nonidentity,origin,&closest,&steps) != KC_BAD_INPUT)
+        return 1;
     kc_transform wrong_sheet = identity;
     wrong_sheet.m[3][3] = -1.0f;
     kc_transform wrong_neighbors[] = {identity,wrong_sheet};
