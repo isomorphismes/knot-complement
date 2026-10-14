@@ -2,6 +2,20 @@
 
 #include <math.h>
 
+static int point_is_finite(kc_point4 point)
+{
+    return isfinite(point.x) && isfinite(point.y) && isfinite(point.z) &&
+           isfinite(point.w);
+}
+
+static int transform_is_finite(kc_transform transform)
+{
+    for (size_t row_index = 0; row_index < 4; ++row_index)
+        for (size_t column_index = 0; column_index < 4; ++column_index)
+            if (!isfinite(transform.m[row_index][column_index])) return 0;
+    return 1;
+}
+
 static float minkowski_dot(kc_point4 a, kc_point4 b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z - a.w * b.w;
@@ -103,7 +117,7 @@ kc_point4 kc_apply(kc_point4 point, kc_transform transform)
 
 kc_status kc_inverse(kc_transform transform, kc_transform *inverse)
 {
-    if (inverse == NULL) {
+    if (inverse == NULL || !transform_is_finite(transform)) {
         return KC_BAD_INPUT;
     }
 
@@ -166,24 +180,30 @@ kc_status kc_inverse(kc_transform transform, kc_transform *inverse)
         }
     }
 
+    if (!transform_is_finite(out)) return KC_BAD_INPUT;
     *inverse = out;
     return KC_OK;
 }
 
 float kc_hyperbolic_distance(kc_point4 a, kc_point4 b)
 {
-    float aa = minkowski_dot(a, a);
-    float bb = minkowski_dot(b, b);
-    float ab = minkowski_dot(a, b);
-    float ratio = fabsf(ab / sqrtf(aa * bb));
-    if (ratio < 1.0f) {
-        ratio = 1.0f;
-    }
-    return acoshf(ratio);
+    if (!point_is_finite(a) || !point_is_finite(b) || a.w <= 0.0f || b.w <= 0.0f)
+        return NAN;
+    double aa = (double)a.x*a.x + (double)a.y*a.y + (double)a.z*a.z - (double)a.w*a.w;
+    double bb = (double)b.x*b.x + (double)b.y*b.y + (double)b.z*b.z - (double)b.w*b.w;
+    double ab = (double)a.x*b.x + (double)a.y*b.y + (double)a.z*b.z - (double)a.w*b.w;
+    if (!(aa < 0.0 && bb < 0.0)) return NAN;
+    double ratio = -ab / sqrt(aa * bb);
+    /* Only a small binary32 roundoff deficit may be clamped. Wrong sheets,
+       spacelike inputs and nonfinite data are rejected before this point. */
+    if (!isfinite(ratio) || ratio < 1.0 - 1e-4) return NAN;
+    if (ratio < 1.0) ratio = 1.0;
+    return (float)acosh(ratio);
 }
 
 int kc_needs_hyperbolic_tuneup(kc_transform transform)
 {
+    if (!transform_is_finite(transform)) return 1;
     for (size_t i = 0; i < 4; ++i) {
         for (size_t j = i; j < 4; ++j) {
             float d = transform.m[i][0] * transform.m[j][0] +
@@ -193,7 +213,7 @@ int kc_needs_hyperbolic_tuneup(kc_transform transform)
             if (i == 3) {
                 d *= -1.0f;
             }
-            if (fabsf(d - (float)(i == j)) > 0.01f) {
+            if (!isfinite(d) || fabsf(d - (float)(i == j)) > 0.01f) {
                 return 1;
             }
         }
@@ -236,6 +256,19 @@ kc_status kc_find_nearest_copy(
         return KC_BAD_INPUT;
     }
 
+    if (!isfinite(kc_hyperbolic_distance(point, point)) ||
+        !isfinite(kc_hyperbolic_distance(space->center, space->center)))
+        return KC_BAD_INPUT;
+    for (size_t i = 0; i < space->neighbor_count; ++i) {
+        if (kc_needs_hyperbolic_tuneup(space->neighbors[i]) ||
+            space->neighbors[i].m[3][3] <= 0.0f) return KC_BAD_INPUT;
+    }
+    for (size_t row_index = 0; row_index < 4; ++row_index)
+        for (size_t column_index = 0; column_index < 4; ++column_index)
+            if (fabsf(space->neighbors[0].m[row_index][column_index] -
+                      (float)(row_index == column_index)) > 1e-6f)
+                return KC_BAD_INPUT;
+
     kc_transform closest = kc_identity();
     kc_point4 current = point;
 
@@ -246,6 +279,7 @@ kc_status kc_find_nearest_copy(
         for (size_t i = 0; i < space->neighbor_count; ++i) {
             kc_point4 image = kc_apply(space->center, space->neighbors[i]);
             float distance = kc_hyperbolic_distance(current, image);
+            if (!isfinite(distance)) return KC_BAD_INPUT;
             if (i == 0 || distance < nearest_distance) {
                 nearest = i;
                 nearest_distance = distance;
@@ -286,7 +320,8 @@ kc_status kc_recenter_camera(
     size_t *steps
 )
 {
-    if (space == NULL || new_camera_to_world == NULL || group_element == NULL) {
+    if (space == NULL || new_camera_to_world == NULL || group_element == NULL ||
+        !transform_is_finite(camera_to_world) || !transform_is_finite(model_to_world)) {
         return KC_BAD_INPUT;
     }
 
@@ -333,7 +368,11 @@ kc_status kc_recenter_camera(
         recentered = kc_tune_hyperbolic(recentered);
     }
 
+    if (kc_needs_hyperbolic_tuneup(recentered) || recentered.m[3][3] <= 0.0f)
+        return KC_BAD_INPUT;
+
     *new_camera_to_world = recentered;
     *group_element = closest;
     return KC_OK;
 }
+
