@@ -1,0 +1,63 @@
+name: H3 ray reference and independent acceptance
+
+on:
+  push:
+    branches: [feat/h3-geodesic-ray]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  h3-ray:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out the source-bound FP envelope
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/flexible-pipes
+          ref: 36485ea6a5dd7d8c23d02a9b86f4c1bd957268fb
+          path: fp
+          clean: false
+          persist-credentials: false
+      - name: Check out exact pull-request head
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: fp/source
+          persist-credentials: false
+      - name: Check out exact push head
+        if: github.event_name == 'push'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: fp/source
+          persist-credentials: false
+      - name: Check out the independent oracle
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 4f3e01f75239b7645c61121cb65814069ef68d24
+          path: fp/oracle
+          persist-credentials: false
+      - name: Open the FP job before compiler acquisition
+        run: python3 fp/scripts/run-pipeline geometry-ray-open
+      - name: Acquire and qualify the pinned ICK compiler
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@4ea071a96239f3a29ca6d98454feb59947d87cfe
+      - name: Execute the declared FP acceptance pipeline
+        run: >-
+          python3 fp/scripts/run-pipeline geometry-ray-acceptance
+          --param compiler=${{ steps.ick.outputs.compiler }}
+      - name: Retain original receipts and numerical output
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: h3-ray-evidence
+          path: |
+            fp/.flexible-pipes/runs/
+            fp/build/oracle-values.tsv
+          if-no-files-found: error
+
